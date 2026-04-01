@@ -1,1 +1,164 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestão - Neurofisioreabilith</title>
+    <style>
+        /* CSS: Cores baseadas na logo */
+        :root {
+            --azul-claro: #a8dadc;
+            --azul-medio: #457b9d;
+            --azul-escuro: #1d3557;
+            --fundo: #f1faee;
+            --sucesso: #2a9d8f;
+        }
 
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--fundo); margin: 0; display: flex; }
+        
+        /* Barra Lateral */
+        nav { width: 260px; height: 100vh; background: var(--azul-escuro); color: white; padding: 20px; position: fixed; box-sizing: border-box; }
+        .logo-placeholder { text-align: center; font-weight: bold; font-size: 1.2rem; margin-bottom: 30px; border-bottom: 1px solid var(--azul-medio); padding-bottom: 15px; }
+        nav ul { list-style: none; padding: 0; }
+        nav li { padding: 12px; cursor: pointer; border-radius: 5px; margin-bottom: 10px; transition: 0.3s; }
+        nav li:hover { background: var(--azul-medio); }
+        .btn-admin { background: #e63946; color: white; border: none; padding: 10px; width: 100%; border-radius: 5px; cursor: pointer; margin-top: 20px; }
+
+        /* Conteúdo Principal */
+        main { margin-left: 260px; padding: 40px; width: 100%; }
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); max-width: 800px; }
+        h2 { color: var(--azul-escuro); margin-top: 0; }
+        
+        /* Formulários */
+        .grid-form { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; color: #555; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 1rem; }
+        .full-width { grid-column: span 2; }
+        button.principal { background: var(--azul-medio); color: white; border: none; padding: 15px; border-radius: 6px; cursor: pointer; font-size: 1rem; margin-top: 10px; width: 100%; }
+        
+        /* Tabela de Relatório */
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; }
+        th, td { padding: 12px; border-bottom: 1px solid #eee; text-align: left; }
+        th { background: var(--azul-medio); color: white; }
+        .lucro-tag { color: var(--sucesso); font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="logo-placeholder">NEUROFISIOREABILITH</div>
+    <ul>
+        <li onclick="abrir('atendimento')">📝 Lançar Consulta</li>
+        <li onclick="abrir('paciente')">👥 Cadastrar Paciente</li>
+        <li onclick="abrir('relatorio')">📊 Relatório Mensal</li>
+    </ul>
+    <button class="btn-admin" onclick="ativarModoAdmin()">🔓 Modo Administrador</button>
+</nav>
+
+<main>
+    <section id="atendimento" class="card">
+        <h2>Lançar Novo Atendimento</h2>
+        <div class="grid-form">
+            <div class="full-width">
+                <label>Paciente:</label>
+                <select id="atendPaciente">
+                    <option>Selecione um paciente cadastrado...</option>
+                </select>
+            </div>
+            <div>
+                <label>Médico:</label>
+                <select id="atendMedico">
+                    <option value="0.7">Dr. João (70% repasse)</option>
+                    <option value="1.0">Dra. Maria (100% repasse - Isento)</option>
+                </select>
+            </div>
+            <div>
+                <label>Valor da Consulta (R$):</label>
+                <input type="number" id="atendValor" placeholder="300.00">
+            </div>
+            <button class="principal full-width" onclick="salvarAtendimento()">Salvar Atendimento</button>
+        </div>
+    </section>
+
+    <section id="relatorio" class="card" style="display:none;">
+        <h2>Relatório de Atendimentos</h2>
+        <table id="tabelaRelatorio">
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Paciente</th>
+                    <th>Médico</th>
+                    <th class="col-financeira" style="display:none;">Lucro Clínica</th>
+                </tr>
+            </thead>
+            <tbody id="corpoTabela">
+                </tbody>
+        </table>
+    </section>
+</main>
+
+<script>
+    let isAdmin = false;
+    let bancoDados = []; // Simulando o banco de dados
+
+    function abrir(id) {
+        document.getElementById('atendimento').style.display = 'none';
+        document.getElementById('relatorio').style.display = 'none';
+        document.getElementById(id).style.display = 'block';
+    }
+
+    function ativarModoAdmin() {
+        let senha = prompt("Digite a senha master:");
+        if(senha === "admin123") {
+            isAdmin = true;
+            alert("Modo Administrador Ativado! Dados financeiros liberados.");
+            document.querySelectorAll('.col-financeira').forEach(el => el.style.display = 'table-cell');
+            renderizarRelatorio();
+        } else {
+            alert("Senha incorreta.");
+        }
+    }
+
+    function salvarAtendimento() {
+        const paciente = document.getElementById('atendPaciente').value;
+        const medicoSelect = document.getElementById('atendMedico');
+        const valor = parseFloat(document.getElementById('atendValor').value);
+        const repassePorcentagem = parseFloat(medicoSelect.value);
+
+        if(!valor) return alert("Insira o valor!");
+
+        const lucroClinica = valor * (1 - repassePorcentagem);
+        
+        const novoDado = {
+            data: new Date().toLocaleDateString(),
+            paciente: "Paciente Exemplo", // Aqui viria o nome do select
+            medico: medicoSelect.options[medicoSelect.selectedIndex].text,
+            lucro: lucroClinica
+        };
+
+        bancoDados.push(novoDado);
+        alert("Atendimento registrado!");
+        renderizarRelatorio();
+    }
+
+    function renderizarRelatorio() {
+        const corpo = document.getElementById('corpoTabela');
+        corpo.innerHTML = "";
+        bancoDados.forEach(item => {
+            let linha = `<tr>
+                <td>${item.data}</td>
+                <td>${item.paciente}</td>
+                <td>${item.medico}</td>`;
+            
+            if(isAdmin) {
+                linha += `<td class="lucro-tag">R$ ${item.lucro.toFixed(2)}</td>`;
+            }
+            
+            linha += `</tr>`;
+            corpo.innerHTML += linha;
+        });
+    }
+</script>
+
+</body>
+</html>
