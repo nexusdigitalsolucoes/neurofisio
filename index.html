@@ -2,14 +2,13 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Neurofisioreabilith - Gestão</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
 <nav>
-    <div class="logo">NEUROFISIOREABILITH</div>
+    <h1>NEUROFISIOREABILITH</h1>
     <ul>
         <li onclick="mostrarTela('tela-lancar')">📝 Lançar Consulta</li>
         <li onclick="mostrarTela('tela-relatorio')">📊 Relatório Mensal</li>
@@ -21,22 +20,24 @@
     <section id="tela-lancar" class="card">
         <h2>📝 Lançar Nova Consulta</h2>
         <input type="text" id="nomePaciente" placeholder="Nome do Paciente">
-        <select id="atendMedico"><option>Carregando...</option></select>
-        <input type="number" id="valorAtend" placeholder="Valor (R$)">
-        <button class="btn-principal" onclick="salvarConsulta()">Finalizar</button>
+        <select id="atendMedico">
+            <option>Carregando médicos...</option>
+        </select>
+        <input type="number" id="valorAtend" placeholder="Valor da Consulta (R$)">
+        <button class="btn-principal" onclick="salvarConsulta()">Finalizar Lançamento</button>
     </section>
 
     <section id="tela-admin" class="card" style="display:none;">
         <h2>⚙️ Gestão de Médicos</h2>
         <input type="text" id="nomeMedico" placeholder="Nome do Médico">
-        <input type="number" id="porcentagem" placeholder="Repasse %">
-        <button class="btn-principal" onclick="salvarMedico()">Cadastrar</button>
+        <input type="number" id="porcentagem" placeholder="Repasse % (Ex: 70)">
+        <button class="btn-principal" onclick="salvarMedico()">Cadastrar Médico</button>
         <div id="listaMedicos"></div>
     </section>
 
     <section id="tela-relatorio" class="card" style="display:none;">
-        <h2>📊 Relatório Mensal</h2>
-        <div id="dadosRelatorio">Área Restrita</div>
+        <h2>📊 Fechamento de Caixa</h2>
+        <div id="dadosRelatorio">O lucro da clínica aparecerá aqui.</div>
     </section>
 </main>
 
