@@ -2,183 +2,44 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>ADM - Neurofisioreabilith</title>
-    <style>
-        :root { --azul-escuro: #1d3557; --azul-medio: #457b9d; --branco: #f1faee; }
-        body { font-family: sans-serif; background: var(--branco); padding: 20px; }
-        .painel-adm { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 8px; shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        h2 { color: var(--azul-escuro); border-bottom: 2px solid var(--azul-medio); padding-bottom: 10px; }
-        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
-        button { background: var(--azul-escuro); color: white; border: none; padding: 12px; cursor: pointer; width: 100%; border-radius: 4px; }
-        button:hover { background: var(--azul-medio); }
-        .medico-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; align-items: center; }
-        .btn-delete { background: #e63946; width: auto; padding: 5px 10px; font-size: 0.8rem; }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neurofisioreabilith - Gestão</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-<div class="painel-adm">
-    <h2>⚙️ Gestão de Médicos (Acesso Admin)</h2>
-    
-    <label>Nome do Médico:</label>
-    <input type="text" id="nomeMedico" placeholder="Ex: Dr. João">
-    
-    <label>Repasse para o Médico (%):</label>
-    <input type="number" id="porcentagem" placeholder="Ex: 70">
-    
-    <button onclick="salvarMedico()">Cadastrar Médico</button>
+<nav>
+    <div class="logo">NEUROFISIOREABILITH</div>
+    <ul>
+        <li onclick="mostrarTela('tela-lancar')">📝 Lançar Consulta</li>
+        <li onclick="mostrarTela('tela-relatorio')">📊 Relatório Mensal</li>
+    </ul>
+    <button class="btn-admin-nav" onclick="acessoAdmin()">🔓 Modo Administrador</button>
+</nav>
 
-    <h3>Médicos Cadastrados</h3>
-    <div id="listaMedicos">
-        </div>
-</div>
-
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-  import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, onSnapshot } 
-  from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
-
-  // 1. COLE SUAS CONFIGURAÇÕES AQUI:
-  const firebaseConfig = {
-    apiKey: "AIzaSyApeOHAmMRqnDmZt3xSkX2ljQBaMktRFoo",
-    authDomain: "clinica-neurofisioreabilith.firebaseapp.com",
-    projectId: "clinica-neurofisioreabilith",
-    storageBucket: "clinica-neurofisioreabilith.firebasestorage.app",
-    messagingSenderId: "1001666937244",
-    appId: "1:1001666937244:web:1c262f4a996e64904dc859"
-};
-
-  // Inicializar Firebase
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-
-  // FUNÇÃO PARA SALVAR MÉDICO
-  window.salvarMedico = async () => {
-    const nome = document.getElementById('nomeMedico').value;
-    const porcento = document.getElementById('porcentagem').value;
-
-    if(!nome || !porcento) return alert("Preencha tudo!");
-
-    try {
-      await addDoc(collection(db, "medicos"), {
-        nome: nome,
-        repasse: parseFloat(porcento) / 100, // Salva como decimal (ex: 0.7)
-        dataCriacao: new Date()
-      });
-      alert("Médico cadastrado com sucesso!");
-      document.getElementById('nomeMedico').value = "";
-      document.getElementById('porcentagem').value = "";
-    } catch (e) {
-      console.error("Erro ao salvar: ", e);
-    }
-  };
-
-  // FUNÇÃO PARA LISTAR MÉDICOS EM TEMPO REAL
-  onSnapshot(collection(db, "medicos"), (snapshot) => {
-    const lista = document.getElementById('listaMedicos');
-    lista.innerHTML = "";
-    snapshot.forEach((docSnap) => {
-      const med = docSnap.data();
-      lista.innerHTML += `
-        <div class="medico-item">
-            <span><strong>${med.nome}</strong> - Repasse: ${med.repasse * 100}%</span>
-            <button class="btn-delete" onclick="deletarMedico('${docSnap.id}')">Excluir</button>
-        </div>
-      `;
-    });
-  });
-
-  // FUNÇÃO PARA DELETAR
-  window.deletarMedico = async (id) => {
-    if(confirm("Deseja remover este médico?")) {
-        await deleteDoc(doc(db, "medicos", id));
-    }
-  };
-
-  // --- DENTRO DO SEU SCRIPT MODULE ---
-
-// 1. Função para carregar os médicos no SELECT da secretária automaticamente
-onSnapshot(collection(db, "medicos"), (snapshot) => {
-    const selectMedico = document.getElementById('atendMedico');
-    selectMedico.innerHTML = '<option value="">Selecione o Médico...</option>';
-    
-    snapshot.forEach((docSnap) => {
-        const med = docSnap.data();
-        // Guardamos a porcentagem de repasse no VALUE do option
-        selectMedico.innerHTML += `<option value="${med.repasse}">${med.nome}</option>`;
-    });
-});
-
-// 2. Função para a secretária salvar a consulta
-window.salvarConsulta = async () => {
-    const paciente = document.getElementById('nomePaciente').value; // Novo campo
-    const select = document.getElementById('atendMedico');
-    const valorBruto = parseFloat(document.getElementById('valorAtend').value);
-    
-    if (!paciente || !select.value || !valorBruto) {
-        return alert("Por favor, preencha todos os campos!");
-    }
-
-    const percentualMedico = parseFloat(select.value);
-    const valorRepasse = valorBruto * percentualMedico;
-    const lucroClinica = valorBruto - valorRepasse;
-
-    try {
-        await addDoc(collection(db, "atendimentos"), {
-            paciente: paciente,
-            medico: select.options[select.selectedIndex].text,
-            valorBruto: valorBruto,
-            valorRepasse: valorRepasse,
-            lucroClinica: lucroClinica,
-            data: new Date().toLocaleDateString('pt-BR'),
-            timestamp: new Date() // Para ordenar o relatório depois
-        });
-        alert("Consulta lançada com sucesso!");
-        // Limpa os campos
-        document.getElementById('nomePaciente').value = "";
-        document.getElementById('valorAtend').value = "";
-    } catch (e) {
-        alert("Erro ao salvar: " + e.message);
-    }
-};
-
-// Função para alternar entre as telas
-window.mostrarTela = (idTela) => {
-    // Esconde todas as seções
-    document.getElementById('tela-lancar').style.display = 'none';
-    document.getElementById('tela-admin').style.display = 'none';
-    document.getElementById('tela-relatorio').style.display = 'none';
-    
-    // Mostra apenas a que você clicou
-    document.getElementById(idTela).style.display = 'block';
-};
-
-
-</script>
 <main>
     <section id="tela-lancar" class="card">
         <h2>📝 Lançar Nova Consulta</h2>
         <input type="text" id="nomePaciente" placeholder="Nome do Paciente">
-        <select id="atendMedico">
-            <option>Carregando médicos...</option>
-        </select>
-        <input type="number" id="valorAtend" placeholder="Valor da Consulta (R$)">
-        <button class="principal" onclick="salvarConsulta()">Finalizar Lançamento</button>
+        <select id="atendMedico"><option>Carregando...</option></select>
+        <input type="number" id="valorAtend" placeholder="Valor (R$)">
+        <button class="btn-principal" onclick="salvarConsulta()">Finalizar</button>
     </section>
 
     <section id="tela-admin" class="card" style="display:none;">
         <h2>⚙️ Gestão de Médicos</h2>
         <input type="text" id="nomeMedico" placeholder="Nome do Médico">
-        <input type="number" id="porcentagem" placeholder="Repasse % (Ex: 70)">
-        <button onclick="salvarMedico()">Cadastrar Médico</button>
+        <input type="number" id="porcentagem" placeholder="Repasse %">
+        <button class="btn-principal" onclick="salvarMedico()">Cadastrar</button>
         <div id="listaMedicos"></div>
     </section>
 
     <section id="tela-relatorio" class="card" style="display:none;">
-        <h2>📊 Fechamento de Caixa</h2>
-        <div id="dadosRelatorio">
-            </div>
+        <h2>📊 Relatório Mensal</h2>
+        <div id="dadosRelatorio">Área Restrita</div>
     </section>
 </main>
+
+<script type="module" src="js/app.js"></script>
 </body>
 </html>
