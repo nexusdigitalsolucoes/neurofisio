@@ -141,7 +141,44 @@ window.salvarConsulta = async () => {
         alert("Erro ao salvar: " + e.message);
     }
 };
-</script>
 
+// Função para alternar entre as telas
+window.mostrarTela = (idTela) => {
+    // Esconde todas as seções
+    document.getElementById('tela-lancar').style.display = 'none';
+    document.getElementById('tela-admin').style.display = 'none';
+    document.getElementById('tela-relatorio').style.display = 'none';
+    
+    // Mostra apenas a que você clicou
+    document.getElementById(idTela).style.display = 'block';
+};
+
+
+</script>
+<main>
+    <section id="tela-lancar" class="card">
+        <h2>📝 Lançar Nova Consulta</h2>
+        <input type="text" id="nomePaciente" placeholder="Nome do Paciente">
+        <select id="atendMedico">
+            <option>Carregando médicos...</option>
+        </select>
+        <input type="number" id="valorAtend" placeholder="Valor da Consulta (R$)">
+        <button class="principal" onclick="salvarConsulta()">Finalizar Lançamento</button>
+    </section>
+
+    <section id="tela-admin" class="card" style="display:none;">
+        <h2>⚙️ Gestão de Médicos</h2>
+        <input type="text" id="nomeMedico" placeholder="Nome do Médico">
+        <input type="number" id="porcentagem" placeholder="Repasse % (Ex: 70)">
+        <button onclick="salvarMedico()">Cadastrar Médico</button>
+        <div id="listaMedicos"></div>
+    </section>
+
+    <section id="tela-relatorio" class="card" style="display:none;">
+        <h2>📊 Fechamento de Caixa</h2>
+        <div id="dadosRelatorio">
+            </div>
+    </section>
+</main>
 </body>
 </html>
