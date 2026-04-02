@@ -2,15 +2,17 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Neurofisioreabilith - Gestão</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
 <nav>
-    <h1>NEUROFISIOREABILITH</h1>
+    <div class="logo">NEUROFISIOREABILITH</div>
     <ul>
         <li onclick="mostrarTela('tela-lancar')">📝 Lançar Consulta</li>
+        <li onclick="mostrarTela('tela-paciente')">👥 Cadastrar Paciente</li>
         <li onclick="mostrarTela('tela-relatorio')">📊 Relatório Mensal</li>
     </ul>
     <button class="btn-admin-nav" onclick="acessoAdmin()">🔓 Modo Administrador</button>
@@ -37,7 +39,7 @@
 
     <section id="tela-relatorio" class="card" style="display:none;">
         <h2>📊 Fechamento de Caixa</h2>
-        <div id="dadosRelatorio">O lucro da clínica aparecerá aqui.</div>
+        <div id="dadosRelatorio">O lucro da clínica aparecerá aqui (Acesso Admin).</div>
     </section>
 </main>
 

@@ -9,10 +9,9 @@ body {
     font-family: 'Segoe UI', sans-serif;
     background-color: var(--branco-gelo);
     margin: 0;
-    display: flex; /* Alinha menu e conteúdo lado a lado */
+    display: flex; /* Coloca o menu e o conteúdo lado a lado */
 }
 
-/* MENU LATERAL */
 nav {
     width: 260px;
     height: 100vh;
@@ -20,19 +19,26 @@ nav {
     color: white;
     padding: 20px;
     position: fixed;
+    box-sizing: border-box;
 }
 
-nav h1 { font-size: 1.1rem; text-align: center; border-bottom: 1px solid #444; padding-bottom: 15px; }
+.logo {
+    font-weight: bold;
+    font-size: 1.1rem;
+    text-align: center;
+    margin-bottom: 30px;
+    border-bottom: 1px solid #444;
+    padding-bottom: 15px;
+}
 
-nav ul { list-style: none; padding: 0; margin-top: 20px; }
-
+nav ul { list-style: none; padding: 0; }
 nav li {
     padding: 15px;
     cursor: pointer;
     border-radius: 8px;
+    margin-bottom: 10px;
     transition: 0.3s;
 }
-
 nav li:hover { background: var(--azul-medio); }
 
 .btn-admin-nav {
@@ -44,11 +50,11 @@ nav li:hover { background: var(--azul-medio); }
     border-radius: 8px;
     cursor: pointer;
     margin-top: 20px;
+    font-weight: bold;
 }
 
-/* ÁREA DE CONTEÚDO */
 main {
-    margin-left: 260px; /* Dá espaço para o menu fixo */
+    margin-left: 260px; /* Dá espaço para o menu lateral */
     padding: 40px;
     width: 100%;
     display: flex;
@@ -62,10 +68,7 @@ main {
     box-shadow: 0 5px 15px rgba(0,0,0,0.1);
     width: 100%;
     max-width: 800px;
-    /* Aqui está o segredo: por padrão, as telas de admin e relatório ficam ocultas */
 }
-
-h2 { color: var(--azul-escuro); margin-top: 0; }
 
 input, select {
     width: 100%;
@@ -73,7 +76,6 @@ input, select {
     margin-bottom: 15px;
     border: 1px solid #ddd;
     border-radius: 8px;
-    box-sizing: border-box;
 }
 
 .btn-principal {
@@ -90,11 +92,17 @@ input, select {
 .medico-item {
     display: flex;
     justify-content: space-between;
-    padding: 10px;
+    padding: 12px;
     background: #f8f9fa;
-    margin-bottom: 5px;
-    border-radius: 5px;
+    margin-top: 10px;
+    border-radius: 6px;
     align-items: center;
 }
 
-.btn-excluir { background: var(--vermelho); color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+/* No seu style.css */
+.logo {
+    background: linear-gradient(to right, #7fb3d5, #4a4e91);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: bold;
+}
