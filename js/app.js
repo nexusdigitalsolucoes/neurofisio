@@ -6,11 +6,25 @@ from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 import { formatarMoeda } from './utils/formatadores.js';
 
 // --- NAVEGAÇÃO ---
+// js/app.js - Versão que não quebra se faltar tela
 window.mostrarTela = (idTela) => {
-    document.getElementById('tela-lancar').style.display = 'none';
-    document.getElementById('tela-admin').style.display = 'none';
-    document.getElementById('tela-relatorio').style.display = 'none';
-    document.getElementById(idTela).style.display = 'block';
+    // Lista exata dos IDs que você tem no seu HTML
+    const telas = ['tela-lancar', 'tela-admin', 'tela-relatorio', 'tela-paciente'];
+    
+    telas.forEach(id => {
+        const elemento = document.getElementById(id);
+        if (elemento) {
+            // Só tenta mexer no style se o elemento realmente existir
+            elemento.style.display = 'none';
+        }
+    });
+    
+    const telaAlvo = document.getElementById(idTela);
+    if (telaAlvo) {
+        telaAlvo.style.display = 'block';
+    } else {
+        console.error(`Erro: A tela com ID "${idTela}" não foi encontrada no HTML!`);
+    }
 };
 
 window.acessoAdmin = () => {
