@@ -1,9 +1,9 @@
-// js/app.js
-import { db } from './firebase-config.js'; // O './' indica que está na mesma pasta
+import { db } from './firebase-config.js';
 import { collection, addDoc, deleteDoc, doc, onSnapshot } 
 from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
-// ... restante do código
+// Importando seu novo utilitário
+import { formatarMoeda } from './utils/formatadores.js';
 
 // --- NAVEGAÇÃO ---
 window.mostrarTela = (idTela) => {
@@ -22,16 +22,63 @@ window.acessoAdmin = () => {
     }
 };
 
+// --- CONSULTAS (COM LIMPEZA E BLOQUEIO DE BOTÃO) ---
+window.salvarConsulta = async () => {
+    const btn = document.querySelector('#tela-lancar .btn-principal');
+    const inputPac = document.getElementById('nomePaciente');
+    const inputVal = document.getElementById('valorAtend');
+    const selMed = document.getElementById('atendMedico');
+
+    if(!inputPac.value || !selMed.value || !inputVal.value) {
+        return alert("⚠️ Preencha todos os campos antes de salvar.");
+    }
+
+    // Bloqueia o botão para evitar duplicados
+    btn.disabled = true;
+    btn.innerText = "Salvando no sistema...";
+
+    try {
+        const valor = parseFloat(inputVal.value);
+        const repasseMedico = parseFloat(selMed.value);
+
+        await addDoc(collection(db, "atendimentos"), {
+            paciente: inputPac.value,
+            medico: selMed.options[selMed.selectedIndex].text,
+            valorBruto: valor,
+            lucroClinica: valor * (1 - repasseMedico),
+            data: new Date().toLocaleDateString('pt-BR'),
+            timestamp: new Date()
+        });
+
+        alert("✅ Lançamento realizado com sucesso!");
+
+        // LIMPEZA DOS CAMPOS
+        inputPac.value = "";
+        inputVal.value = "";
+        selMed.selectedIndex = 0;
+
+    } catch (e) {
+        alert("Erro técnico: " + e.message);
+    } finally {
+        // Libera o botão novamente
+        btn.disabled = false;
+        btn.innerText = "Finalizar Lançamento";
+    }
+};
+
 // --- MÉDICOS ---
 window.salvarMedico = async () => {
     const nome = document.getElementById('nomeMedico').value;
     const porcento = document.getElementById('porcentagem').value;
-    if(!nome || !porcento) return alert("Preencha os campos!");
+    if(!nome || !porcento) return alert("Preencha os dados do médico.");
 
     await addDoc(collection(db, "medicos"), {
         nome: nome,
         repasse: parseFloat(porcento) / 100
     });
+    
+    document.getElementById('nomeMedico').value = "";
+    document.getElementById('porcentagem').value = "";
     alert("Médico cadastrado!");
 };
 
@@ -43,60 +90,17 @@ onSnapshot(collection(db, "medicos"), (snap) => {
 
     snap.forEach(d => {
         const m = d.data();
-        lista.innerHTML += `<div class="medico-item">
-            <span>${m.nome} (${m.repasse * 100}%)</span>
-            <button onclick="deletarMedico('${d.id}')">Excluir</button>
-        </div>`;
+        lista.innerHTML += `
+            <div class="medico-item">
+                <span>${m.nome} - Repasse: ${m.repasse * 100}%</span>
+                <button class="btn-excluir" onclick="deletarMedico('${d.id}')">Excluir</button>
+            </div>`;
         select.innerHTML += `<option value="${m.repasse}">${m.nome}</option>`;
     });
 });
 
 window.deletarMedico = async (id) => {
-    if(confirm("Excluir médico?")) await deleteDoc(doc(db, "medicos", id));
-};
-
-// --- CONSULTAS ---
-// js/app.js - Atualize a função de consulta
-window.salvarConsulta = async () => {
-    const btn = document.querySelector('#tela-lancar .btn-principal');
-    const inputPac = document.getElementById('nomePaciente');
-    const inputVal = document.getElementById('valorAtend');
-    const selMed = document.getElementById('atendMedico');
-
-    const pac = inputPac.value;
-    const val = parseFloat(inputVal.value);
-    const medPercent = parseFloat(selMed.value);
-
-    if(!pac || !selMed.value || !val) return alert("Preencha tudo!");
-
-    // Bloqueia o botão para evitar duplo clique
-    btn.disabled = true;
-    btn.innerText = "Salvando...";
-
-    try {
-        await addDoc(collection(db, "atendimentos"), {
-            paciente: pac,
-            medico: selMed.options[selMed.selectedIndex].text,
-            valorBruto: val,
-            lucroClinica: val * (1 - medPercent),
-            data: new Date().toLocaleDateString('pt-BR'),
-            timestamp: new Date()
-        });
-
-        alert("✅ Consulta registrada com sucesso!");
-
-        // LIMPA OS CAMPOS
-        inputPac.value = "";
-        inputVal.value = "";
-        selMed.selectedIndex = 0; // Volta para o "Selecione..."
-
-    } catch (e) {
-        alert("Erro ao salvar: " + e.message);
-    } finally {
-        // Desbloqueia o botão
-        btn.disabled = false;
-        btn.innerText = "Finalizar Lançamento";
+    if(confirm("Tem certeza que deseja remover este médico?")) {
+        await deleteDoc(doc(db, "medicos", id));
     }
 };
-
-import { formatarMoeda } from './utils/formatadores.js';

@@ -22,7 +22,6 @@ nav {
     box-sizing: border-box;
 }
 
-
 nav ul { list-style: none; padding: 0; }
 nav li {
     padding: 15px;
@@ -97,7 +96,6 @@ input, select {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     font-weight: bold;
-    
 }
 /*
     font-weight: bold;
