@@ -3,8 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neurofisioreabilith - Gestão</title>
+    <title>Neurofisioreabilith - Gestão Profissional</title>
     <link rel="stylesheet" href="css/style.css">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
 
@@ -21,12 +24,32 @@
 <main>
     <section id="tela-lancar" class="card">
         <h2>📝 Lançar Nova Consulta</h2>
-        <input type="text" id="nomePaciente" placeholder="Nome do Paciente">
-        <select id="atendMedico">
-            <option>Carregando médicos...</option>
+        
+        <label>Paciente:</label>
+        <select id="nomePacienteSelect">
+            <option value="">Carregando pacientes...</option>
         </select>
-        <input type="number" id="valorAtend" placeholder="Valor da Consulta (R$)">
+
+        <label>Médico:</label>
+        <select id="atendMedico">
+            <option value="">Carregando médicos...</option>
+        </select>
+
+        <label>Valor da Consulta (R$):</label>
+        <input type="number" id="valorAtend" placeholder="Ex: 300">
+        
         <button class="btn-principal" onclick="salvarConsulta()">Finalizar Lançamento</button>
+    </section>
+
+    <section id="tela-paciente" class="card" style="display:none;">
+        <h2>👥 Cadastro de Pacientes</h2>
+        <input type="text" id="pacienteNome" placeholder="Nome Completo">
+        <input type="text" id="pacienteCpf" placeholder="CPF (Opcional)">
+        <input type="text" id="pacienteTelefone" placeholder="WhatsApp">
+        <button class="btn-principal" onclick="salvarPaciente()">Salvar Paciente</button>
+        
+        <h3>Pacientes Cadastrados</h3>
+        <div id="listaPacientes"></div>
     </section>
 
     <section id="tela-admin" class="card" style="display:none;">
@@ -34,12 +57,51 @@
         <input type="text" id="nomeMedico" placeholder="Nome do Médico">
         <input type="number" id="porcentagem" placeholder="Repasse % (Ex: 70)">
         <button class="btn-principal" onclick="salvarMedico()">Cadastrar Médico</button>
-        <div id="listaMedicos"></div>
+        
+        <div id="listaMedicos" class="lista-admin"></div>
     </section>
 
     <section id="tela-relatorio" class="card" style="display:none;">
-        <h2>📊 Fechamento de Caixa</h2>
-        <div id="dadosRelatorio">O lucro da clínica aparecerá aqui (Acesso Admin).</div>
+        <h2>📊 Fechamento Financeiro</h2>
+
+        <div class="filtros-data">
+            <button class="btn-filtro" onclick="filtrarRelatorio('hoje')">Hoje</button>
+            <button class="btn-filtro" onclick="filtrarRelatorio('mes')">Este Mês</button>
+            <button class="btn-filtro" onclick="filtrarRelatorio('todos')">Tudo</button>
+        </div>
+
+        <div class="dashboard">
+            <div class="dash-card">
+                <span>Faturamento Bruto</span>
+                <strong id="totalBruto">R$ 0,00</strong>
+            </div>
+            <div class="dash-card">
+                <span>Repasse Médicos</span>
+                <strong id="totalMedicos" style="color: #e63946;">R$ 0,00</strong>
+            </div>
+            <div class="dash-card lucro">
+                <span>Lucro Clínica</span>
+                <strong id="totalLucro" style="color: #2a9d8f;">R$ 0,00</strong>
+            </div>
+        </div>
+
+        <button class="btn-principal" style="background:#2a9d8f; margin-bottom:20px;" onclick="gerarPDF()">
+            📥 Gerar Relatório em PDF
+        </button>
+
+        <table id="tabelaRelatorioCompleta">
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Paciente</th>
+                    <th>Médico</th>
+                    <th>Bruto</th>
+                    <th>Lucro</th>
+                </tr>
+            </thead>
+            <tbody id="corpoRelatorio">
+                </tbody>
+        </table>
     </section>
 </main>
 
